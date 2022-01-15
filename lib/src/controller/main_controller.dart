@@ -23,6 +23,18 @@ class Controller extends ControllerMVC {
     /// The Controller knows how to 'talk to' the Model. It knows the name, but Model does the work.
     Model.decrementCounter();
   }
+
+  bool get scannig => Model.scanning;
+  void setScanningFalse() {
+    /// The Controller knows how to 'talk to' the Model. It knows the name, but Model does the work.
+    Model.setScanningFalse();
+  }
+
+  void setScanningTrue() {
+    /// The Controller knows how to 'talk to' the Model. It knows the name, but Model does the work.
+    Model.setScanningTrue();
+  }
+
   // static int get counter => Model.counter;
   // static void incrementCounter() => Model.incrementCounter();
   // static void decrementCounter() => Model.decrementCounter();

@@ -1,25 +1,108 @@
+// import 'package:flutter/material.dart';
+
+// import 'package:mvc_pattern/mvc_pattern.dart';
+// import 'package:textscan/src/view/MyHomePage.dart';
+
+// void main() => runApp(new MyApp());
+
+// class MyApp extends StatelessWidget {
+//   // This widget is the root of your application.
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return new MaterialApp(
+//       title: 'Flutter Demo',
+//       theme: new ThemeData(
+//         primarySwatch: Colors.blue,
+//       ),
+//       home: new MyHomePage(),
+//     );
+//   }
+// }
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:flutter_tesseract_ocr/flutter_tesseract_ocr.dart';
+import 'package:textscan/src/controller/main_controller.dart';
 
-import 'package:mvc_pattern/mvc_pattern.dart';
-import 'package:textscan/src/view/MyHomePage.dart';
+void main() => runApp(MyApp());
 
-void main() => runApp(new MyApp());
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
 
-class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
-
+class _MyAppState extends State<MyApp> {
+  // bool _scanning = false;
+  String _extractText = '';
+  int _scanTime = 0;
+  final Controller _con = Controller();
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
-      title: 'Flutter Demo',
-      theme: new ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: new MyHomePage(),
+    return MaterialApp(
+      home: Scaffold(
+          appBar: AppBar(
+            title: const Text('Tesseract OCR'),
+          ),
+          body: Container(
+            padding: EdgeInsets.all(16),
+            child: ListView(
+              children: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    RaisedButton(
+                      child: Text('Select image'),
+                      onPressed: () async {
+                        // var file = await
+                        final pickedFile = await ImagePicker()
+                            .getImage(source: ImageSource.gallery);
+                        //FilePicker.platform.getDirectoryPath();
+
+                        _con.setScanningTrue();
+                        setState(() {});
+                        debugPrint(pickedFile?.path);
+                        var watch = Stopwatch()..start();
+                        _extractText = await FlutterTesseractOcr.extractText(
+                            pickedFile!.path,
+                            language: 'pol',
+                            args: {
+                              "psm": "10",
+                              "preserve_interword_spaces": "1",
+                            });
+                        _scanTime = watch.elapsedMilliseconds;
+
+                        _con.setScanningFalse();
+                        setState(() {});
+                      },
+                    ),
+                    // It doesn't spin, because scanning hangs thread for now
+                    _con.scannig
+                        ? SpinKitCircle(
+                            color: Colors.black,
+                          )
+                        : Icon(Icons.done),
+                  ],
+                ),
+                SizedBox(
+                  height: 16,
+                ),
+                Text(
+                  'Scanning took $_scanTime ms',
+                  style: TextStyle(color: Colors.red),
+                ),
+                SizedBox(
+                  height: 16,
+                ),
+                Center(child: SelectableText(_extractText)),
+              ],
+            ),
+          )),
     );
   }
 }
-
 
 // import 'package:flutter/material.dart';
 
